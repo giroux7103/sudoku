@@ -7,38 +7,52 @@ import math
 class Cell():
 
     def __init__(self, key):
-        self.possible_values = set([1,2,3,4,5,6,7,8,9])
+        self.possible_values = set({1,2,3,4,5,6,7,8,9})
         self.key = key
         self.value = None
-        self.row = math.floor(key / 9)
-        self.column = (key % 9)
-        self.grid = math.floor(self.row/3) + math.floor(self.column/3) + (2*math.floor(self.row/3))
+        self.row_num = math.floor(key / 9)
+        self.column_num = (key % 9)
+        self.grid_num = math.floor(self.row_num/3) + math.floor(self.column_num/3) + (2*math.floor(self.row_num/3))
         self.board = None
-        self.row_next = None
-        self.col_next = None
-        self.grid_next = None
+        self.row = None
+        self.column = None
+        self.grid = None
 
     def set_value(self, value):
         assert(value in self.possible_values)
         self.value = value
-        self.possible_values.remove(value)
-        check_key = self.key
-        tmp_row = self
-        tmp_col = self
-        tmp_grid = self
-        while True:
-            tmp_row = tmp_row.row_next
-            tmp_col = tmp_col.col_next
-            tmp_grid = tmp_grid.grid_next
-
-            tmp_row.possible_values.discard(value)
-            tmp_col.possible_values.discard(value)
-            tmp_grid.possible_values.discard(value)
-            if tmp_row.row_next.key == check_key:
+        self.possible_values = set({}) # empty set
+        self.board.assigned_cells += 1
+        print('assignment [{}]: {} to cell {}, {}'.format(self.board.assigned_cells, value, self.row.group_number, self.column.group_number))
+        if self.board.assigned_cells == 81:
+            print("Done!")
+            return
+        self.row.no_longer_needs(value)
+        self.column.no_longer_needs(value)
+        self.grid.no_longer_needs(value)
+        # check every cell, this is pretty brute force
+        # set it recursively
+        for c in self.board.cells:
+            if not c.is_empty():
+                continue
+            # for this cell - is there only one option?
+            possible = c.possible_values
+            row_set = c.row.needs()
+            col_set = c.column.needs()
+            grid_set = c.grid.needs()
+            final = possible & row_set & col_set & grid_set
+            if len(final) == 1:
+                print('      > cell {}, {} can only be {}'.format(c.row.group_number, c.column.group_number, final))
+                c.set_value(final.pop())
                 break
 
-    def get_possible_values(self):
-        return self.possible_values
+    def set_groups(self, row, col, grid):
+        self.row = row
+        self.column = col
+        self.grid = grid
+
+    def is_empty(self):
+        return (self.value is None)
 
     def __str__(self):
         return str(self.value) if self.value is not None else "empty"
