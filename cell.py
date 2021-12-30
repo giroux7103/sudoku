@@ -23,7 +23,7 @@ class Cell():
         self.value = value
         self.possible_values = set({}) # empty set
         self.board.assigned_cells += 1
-        print('assignment [{}]: {} to cell {}, {}'.format(self.board.assigned_cells, value, self.row.group_number, self.column.group_number))
+        print('assignment [{}]: {} to cell [{}, {}, {}]'.format(self.board.assigned_cells, value, self.row.group_number, self.column.group_number, self.grid.group_number))
         if self.board.assigned_cells == 81:
             print("Done!")
             return
@@ -32,6 +32,8 @@ class Cell():
         self.grid.no_longer_needs(value)
         # check every cell, this is pretty brute force
         # set it recursively
+        found_single = False
+        finals = []
         for c in self.board.cells:
             if not c.is_empty():
                 continue
@@ -42,9 +44,14 @@ class Cell():
             grid_set = c.grid.needs()
             final = possible & row_set & col_set & grid_set
             if len(final) == 1:
+                found_single = True
+                finals.append(final)
                 print('      > cell {}, {} can only be {}'.format(c.row.group_number, c.column.group_number, final))
-                c.set_value(final.pop())
-                break
+                #c.set_value(final.pop())
+                #break
+        if found_single:
+            print(finals)
+            print(c.board)
 
     def set_groups(self, row, col, grid):
         self.row = row

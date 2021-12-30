@@ -20,7 +20,7 @@ class SudokuGroup():
     def no_longer_needs(self, value):
         self.need_values.discard(value)
         self.empty_cells -= 1
-        print('     > {} now only needs {}'.format(self.group_type, self.need_values))
+        #print('     > {} now only needs {}'.format(self.group_type, self.need_values))
         for c in self.data:
             c.possible_values.discard(value)
 
@@ -30,6 +30,9 @@ class SudokuGroup():
 
     def get_cells(self):
         return self.data
+
+    def __str__(self):
+        return ",".join(map(str, self.data)) + "\n"
 
 
 
@@ -56,8 +59,8 @@ class SudokuBoard():
 
     def __str__(self):
         result = ""
-        for i in self.cells:
-            result += str(i) + ","
+        for r in self.rows:
+            result += str(r)
         return result
 
     def random_fill(self):
@@ -79,4 +82,10 @@ def create_empty_board(seed_func=None):
 
 
 b = create_empty_board()
-b.random_fill()
+try:
+    b.random_fill()
+except Exception as e:
+    print(e)
+    pass
+
+print(b)
