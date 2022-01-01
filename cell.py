@@ -18,40 +18,36 @@ class Cell():
         self.column = None
         self.grid = None
 
-    def set_value(self, value):
-        assert(value in self.possible_values)
+    def unset_value(self):
+        if self.is_empty():
+            raise Exception("Unsetting an empty cell [{},{}]".format(self.row_num, self.column_num))
+        cur_val = self.value
+        self.value = None
+        self.possible_values.add(cur_val)
+        self.board.assigned_cells -= 1
+        self.row.now_needs(cur_val)
+        self.column.now_needs(cur_val)
+        self.grid.now_needs(cur_val)
+
+    def set_value(self, value, is_chained=False):
+        if value not in self.possible_values:
+            raise Exception("Error setting {} to [{},{}] - possibles: {}".format(value, self.row_num, self.column_num, self.possible_values))
+        if is_chained:
+            self.board.move_hist.add_chain(value, self.row_num, self.column_num)
+        else:
+            self.board.move_hist.push(value, self.row_num, self.column_num)
         self.value = value
         self.possible_values = set({}) # empty set
         self.board.assigned_cells += 1
-        print('assignment [{}]: {} to cell [{}, {}, {}]'.format(self.board.assigned_cells, value, self.row.group_number, self.column.group_number, self.grid.group_number))
-        if self.board.assigned_cells == 81:
-            print("Done!")
-            return
         self.row.no_longer_needs(value)
         self.column.no_longer_needs(value)
         self.grid.no_longer_needs(value)
-        # check every cell, this is pretty brute force
-        # set it recursively
-        found_single = False
-        finals = []
-        for c in self.board.cells:
-            if not c.is_empty():
-                continue
-            # for this cell - is there only one option?
-            possible = c.possible_values
-            row_set = c.row.needs()
-            col_set = c.column.needs()
-            grid_set = c.grid.needs()
-            final = possible & row_set & col_set & grid_set
-            if len(final) == 1:
-                found_single = True
-                finals.append(final)
-                print('      > cell {}, {} can only be {}'.format(c.row.group_number, c.column.group_number, final))
-                #c.set_value(final.pop())
-                #break
-        if found_single:
-            print(finals)
-            print(c.board)
+
+        self.check_related_groups()
+
+        self.board.check_single_option()
+        #self.column.check_single_option()
+        #self.grid.check_single_option()
 
     def set_groups(self, row, col, grid):
         self.row = row
