@@ -89,7 +89,7 @@ class SudokuBoard():
             for r in self.rows:
                 for x in random_cols():
                     c = r.get_cells()[x]
-                    if v in c.possible_values:
+                    if v in c.possible_values and not v in c.cant_values:
                         c.set_value(v)
                         break
 

@@ -8,6 +8,7 @@ class Cell():
 
     def __init__(self, key):
         self.possible_values = set({1,2,3,4,5,6,7,8,9})
+        self.cant_values = set()
         self.key = key
         self.value = None
         self.row_num = math.floor(key / 9)
@@ -23,6 +24,7 @@ class Cell():
             raise Exception("Unsetting an empty cell [{},{}]".format(self.row_num, self.column_num))
         cur_val = self.value
         self.value = None
+        self.cant_values.add(cur_val)
         self.possible_values.add(cur_val)
         self.board.assigned_cells -= 1
         self.row.now_needs(cur_val)
@@ -48,6 +50,29 @@ class Cell():
         self.board.check_single_option()
         #self.column.check_single_option()
         #self.grid.check_single_option()
+
+    def check_related_groups(self):
+        group_nums = set()
+        groups = []
+        for c in self.row.get_cells():
+            if c.row.group_number not in group_nums:
+                groups.append(c.row)
+                group_nums.add(c.row.group_number)
+        for c in self.column.get_cells():
+            if c.column.group_number not in group_nums:
+                groups.append(c.column)
+                group_nums.add(c.column.group_number)
+        for c in self.grid.get_cells():
+            if c.grid.group_number not in group_nums:
+                groups.append(c.grid)
+                group_nums.add(c.grid.group_number)
+        # got all groups, now check for needing a value but not possible
+        possible = set()
+        for g in groups:
+            for c in g.get_cells():
+                possible |= c.possible_values
+            if len(g.need_values - c.possible_values) > 0:
+                self.unset_value()
 
     def set_groups(self, row, col, grid):
         self.row = row
