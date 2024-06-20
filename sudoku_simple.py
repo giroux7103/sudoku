@@ -22,16 +22,17 @@ cell_can_have = [[set([1,2,3,4,5,6,7,8,9]) for i in range(9)] for i in range(9)]
 # helpful structure to create lists of row/column coordinates for each "box"
 # box numbers run from 0 to 8 with 0 being the top left and proceding in reading order
 # (left to right, top to bottom)
-box_coords = []
-box_coords.append([(0,0), (0,1), (0,2), (1,0), (1,1), (1,2), (2,0), (2,1), (2,2)]) #0
-box_coords.append([(0,3), (0,4), (0,5), (1,3), (1,4), (1,5), (2,3), (2,4), (2,5)]) #1
-box_coords.append([(0,6), (0,7), (0,8), (1,6), (1,7), (1,8), (2,6), (2,7), (2,8)]) #2
-box_coords.append([(3,0), (3,1), (3,2), (4,0), (4,1), (4,2), (5,0), (5,1), (5,2)]) #3
-box_coords.append([(3,3), (3,4), (3,5), (4,3), (4,4), (4,5), (5,3), (5,4), (5,5)]) #4
-box_coords.append([(3,6), (3,7), (3,8), (4,6), (4,7), (4,8), (5,6), (5,7), (5,8)]) #5
-box_coords.append([(6,0), (6,1), (6,2), (7,0), (7,1), (7,2), (8,0), (8,1), (8,2)]) #6
-box_coords.append([(6,3), (6,4), (6,5), (7,3), (7,4), (7,5), (8,3), (8,4), (8,5)]) #7
-box_coords.append([(6,6), (6,7), (6,8), (7,6), (7,7), (7,8), (8,6), (8,7), (8,8)]) #8
+box_coords = [
+    [(0,0), (0,1), (0,2), (1,0), (1,1), (1,2), (2,0), (2,1), (2,2)], #0
+    [(0,3), (0,4), (0,5), (1,3), (1,4), (1,5), (2,3), (2,4), (2,5)], #1
+    [(0,6), (0,7), (0,8), (1,6), (1,7), (1,8), (2,6), (2,7), (2,8)], #2
+    [(3,0), (3,1), (3,2), (4,0), (4,1), (4,2), (5,0), (5,1), (5,2)], #3
+    [(3,3), (3,4), (3,5), (4,3), (4,4), (4,5), (5,3), (5,4), (5,5)], #4
+    [(3,6), (3,7), (3,8), (4,6), (4,7), (4,8), (5,6), (5,7), (5,8)], #5
+    [(6,0), (6,1), (6,2), (7,0), (7,1), (7,2), (8,0), (8,1), (8,2)], #6
+    [(6,3), (6,4), (6,5), (7,3), (7,4), (7,5), (8,3), (8,4), (8,5)], #7
+    [(6,6), (6,7), (6,8), (7,6), (7,7), (7,8), (8,6), (8,7), (8,8)]  #8
+]
 
 # the move auditing structure holds a record of each
 # move made (column selected for a particular rune on a particular row)
@@ -122,7 +123,8 @@ def get_runes_in_box(box):
 
 def reset_cells_can_have():
     # brute force reset all cell_can_have values
-    # this could definitely be improved
+    # with the current data structures I don't
+    # think there is a more optimal way of doing this
     for row in range(9):
         for col in range(9):
             box = get_box(row, col)
@@ -160,7 +162,7 @@ def unset_value(move_index):
     
     #clear out subsequent bad cols if they exist
     for move in move_audit[move_index+1:]:
-        move["bad_cols"] = []
+        move["bad_cols"].clear()
     
     
 def set_value(move_index, col):
